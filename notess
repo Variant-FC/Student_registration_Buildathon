@@ -1,0 +1,16 @@
+actors:
+students and teacher
+
+teacher
+- Create session
+- Create class 
+- Add or remove students in class
+- Show statistics about students
+- Approve attenance or not
+
+
+
+- Add class name
+- Add participants to class
+- Mark attendance 
+- Display 
