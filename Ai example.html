@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Register</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper: #EEF1EC;
+    --paper-line: #D3D9CF;
+    --ink: #13322D;
+    --ink-soft: #4A615C;
+    --card: #FFFFFF;
+    --present: #2F7D4F;
+    --present-bg: #E4F3E8;
+    --absent: #B0402F;
+    --absent-bg: #FBE8E4;
+    --late: #B8842A;
+    --late-bg: #FBF0DC;
+    --amber: #C68A2E;
+    --focus: #1B6E5A;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(19,50,45,0.06), 0 4px 14px rgba(19,50,45,0.05);
+  }
+
+  *{ box-sizing: border-box; }
+  html{ -webkit-font-smoothing: antialiased; }
+
+  body{
+    margin:0;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size: 100% 42px;
+    background-position: 0 168px;
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height:100vh;
+    padding: 32px 20px 80px;
+  }
+
+  .wrap{ max-width: 920px; margin: 0 auto; }
+
+  /* Header */
+  header{
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .title-row{
+    display:flex;
+    align-items:baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  h1{
+    font-family: 'Roboto Slab', serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: 0.2px;
+    margin: 0;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9CC2B4;
+    display:block;
+    margin-bottom: 4px;
+  }
+  .header-controls{
+    display:flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .field{
+    display:flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label{
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #9CC2B4;
+  }
+  .field input, .field select{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid #2A4B44;
+    background: #16443B;
+    color: #F2F6F1;
+    outline-offset: 2px;
+  }
+  .field input:focus, .field select:focus{ outline: 2px solid var(--amber); }
+  .field input::placeholder{ color: #7FA79B; }
+
+  /* Toolbar */
+  .toolbar{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    display:flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 18px;
+  }
+  .toolbar .field label{ color: var(--ink-soft); }
+  .toolbar .field input{
+    background: var(--paper);
+    border: 1px solid var(--paper-line);
+    color: var(--ink);
+  }
+  .toolbar .field input:focus{ outline: 2px solid var(--focus); }
+  .toolbar form{ display:flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; flex: 1; }
+
+  button{
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  button:focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; }
+  button:active{ transform: translateY(1px); }
+
+  .btn-primary{ background: var(--ink); color: #fff; }
+  .btn-primary:hover{ background: #1D493F; }
+  .btn-ghost{ background: transparent; color: var(--ink-soft); border: 1px solid var(--paper-line); }
+  .btn-ghost:hover{ background: var(--paper); }
+  .btn-quiet{ background: none; color: var(--ink-soft); padding: 6px 8px; }
+  .btn-quiet:hover{ color: var(--absent); }
+
+  .toolbar-actions{ display:flex; gap: 8px; margin-left: auto; }
+
+  /* Stats strip */
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .stat .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    display:block;
+    line-height: 1;
+  }
+  .stat .lbl{
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    display:block;
+    margin-top: 6px;
+  }
+  .stat.present .num{ color: var(--present); }
+  .stat.absent .num{ color: var(--absent); }
+  .stat.late .num{ color: var(--late); }
+
+  /* Register / ledger table */
+  .ledger{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .ledger-head{
+    display:grid;
+    grid-template-columns: 70px 1fr 220px 40px;
+    padding: 12px 18px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .row{
+    display:grid;
+    grid-template-columns: 70px 1fr 220px 40px;
+    align-items:center;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .row:last-child{ border-bottom: none; }
+  .row:hover{ background: #FAFBF9; }
+  .roll{
+    font-family:'IBM Plex Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .name{ font-weight: 500; }
+  .name .sub{
+    display:block;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+
+  .stamp-group{ display:flex; gap: 6px; }
+  .stamp{
+    width: 62px;
+    height: 34px;
+    border-radius: 7px;
+    border: 1.5px solid var(--paper-line);
+    background: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .stamp:hover{ border-color: var(--ink-soft); }
+  .stamp.p[aria-pressed="true"]{ background: var(--present-bg); border-color: var(--present); color: var(--present); transform: scale(1.05) rotate(-1deg); }
+  .stamp.a[aria-pressed="true"]{ background: var(--absent-bg); border-color: var(--absent); color: var(--absent); transform: scale(1.05) rotate(1deg); }
+  .stamp.l[aria-pressed="true"]{ background: var(--late-bg); border-color: var(--late); color: var(--late); transform: scale(1.05) rotate(-1deg); }
+
+  .remove-btn{
+    background:none;
+    border:none;
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+    cursor:pointer;
+    padding: 4px 8px;
+    border-radius:6px;
+    line-height:1;
+  }
+  .remove-btn:hover{ color: var(--absent); background: var(--absent-bg); }
+
+  .empty{
+    padding: 48px 20px;
+    text-align:center;
+    color: var(--ink-soft);
+  }
+  .empty strong{ display:block; color: var(--ink); font-size: 1.05rem; margin-bottom: 6px; font-family:'Roboto Slab', serif; }
+
+  .footer-bar{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer-bar .quick{ display:flex; gap: 8px; }
+  .footer-bar .note{ font-size: 0.78rem; color: var(--ink-soft); }
+
+  .toast{
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px){
+    .ledger-head{ display:none; }
+    .row{ grid-template-columns: 1fr auto; grid-template-areas: "name remove" "stamps stamps"; row-gap: 8px; padding: 14px 16px; }
+    .roll{ display:none; }
+    .name{ grid-area: name; }
+    .remove-btn{ grid-area: remove; }
+    .stamp-group{ grid-area: stamps; }
+    .stats{ grid-template-columns: repeat(2,1fr); }
+    .toolbar form{ width:100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+    .stamp[aria-pressed="true"]{ transform:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title-row">
+      <div>
+        <span class="eyebrow">Daily register</span>
+        <h1 id="classTitle">Attendance — Grade 10B</h1>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="field">
+        <label for="className">Class</label>
+        <input id="className" type="text" value="Grade 10B" placeholder="Class name">
+      </div>
+      <div class="field">
+        <label for="dateInput">Date</label>
+        <input id="dateInput" type="date">
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <form id="addForm">
+      <div class="field">
+        <label for="rollInput">Roll no.</label>
+        <input id="rollInput" type="text" placeholder="e.g. 014" inputmode="numeric" style="width:90px">
+      </div>
+      <div class="field" style="flex:1; min-width:160px;">
+        <label for="nameInput">Student name</label>
+        <input id="nameInput" type="text" placeholder="Full name" autocomplete="off">
+      </div>
+      <button type="submit" class="btn-primary">+ Add student</button>
+    </form>
+    <div class="toolbar-actions">
+      <div class="field">
+        <label for="searchInput" class="sr-only">Search</label>
+        <input id="searchInput" type="text" placeholder="Search name or roll…" style="width:170px; padding:9px 10px; border-radius:7px; border:1px solid var(--paper-line);">
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="num" id="statTotal">0</span><span class="lbl">Total</span></div>
+    <div class="stat present"><span class="num" id="statPresent">0</span><span class="lbl">Present</span></div>
+    <div class="stat absent"><span class="num" id="statAbsent">0</span><span class="lbl">Absent</span></div>
+    <div class="stat late"><span class="num" id="statLate">0</span><span class="lbl">Late</span></div>
+  </div>
+
+  <div class="ledger">
+    <div class="ledger-head">
+      <span>Roll</span>
+      <span>Name</span>
+      <span>Status</span>
+      <span></span>
+    </div>
+    <div id="tableBody"></div>
+    <div class="empty" id="emptyState" style="display:none;">
+      <strong>No students yet</strong>
+      Add your first student above to start today's register.
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <div class="quick">
+      <button class="btn-ghost" id="markAllPresent">Mark all present</button>
+      <button class="btn-ghost" id="clearAll">Clear marks</button>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span class="note" id="pctNote"></span>
+      <button class="btn-primary" id="exportBtn">Export CSV</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- State ----------
+  // students: [{id, roll, name}]
+  // attendance: { "YYYY-MM-DD": { [studentId]: "present"|"absent"|"late" } }
+  let students = [
+    { id: "s1", roll: "001", name: "Amara Chen" },
+    { id: "s2", roll: "002", name: "Liam Okafor" },
+    { id: "s3", roll: "003", name: "Sofia Ndlovu" }
+  ];
+  let attendance = {};
+  let searchTerm = "";
+
+  const el = (id) => document.getElementById(id);
+  const todayStr = () => {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off*60000).toISOString().slice(0,10);
+  };
+
+  const dateInput = el("dateInput");
+  const classNameInput = el("className");
+  const classTitle = el("classTitle");
+  const tableBody = el("tableBody");
+  const emptyState = el("emptyState");
+  const addForm = el("addForm");
+  const rollInput = el("rollInput");
+  const nameInput = el("nameInput");
+  const searchInput = el("searchInput");
+  const toast = el("toast");
+
+  dateInput.value = todayStr();
+
+  // ---------- Helpers ----------
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.classList.remove("show"), 1800);
+  }
+
+  function currentDate(){ return dateInput.value || todayStr(); }
+
+  function getStatus(studentId){
+    const day = attendance[currentDate()];
+    return day ? day[studentId] : undefined;
+  }
+
+  function setStatus(studentId, status){
+    const date = currentDate();
+    if(!attendance[date]) attendance[date] = {};
+    // toggle off if same status clicked again
+    if(attendance[date][studentId] === status){
+      delete attendance[date][studentId];
+    } else {
+      attendance[date][studentId] = status;
+    }
+    render();
+  }
+
+  function nextRoll(){
+    const nums = students
+      .map(s => parseInt(s.roll, 10))
+      .filter(n => !isNaN(n));
+    const max = nums.length ? Math.max(...nums) : 0;
+    return String(max + 1).padStart(3, "0");
+  }
+
+  // ---------- Rendering ----------
+  function render(){
+    const date = currentDate();
+    const term = searchTerm.trim().toLowerCase();
+    const visible = students.filter(s =>
+      !term || s.name.toLowerCase().includes(term) || s.roll.toLowerCase().includes(term)
+    );
+
+    tableBody.innerHTML = "";
+    emptyState.style.display = students.length === 0 ? "block" : "none";
+
+    if (students.length > 0 && visible.length === 0) {
+      const div = document.createElement("div");
+      div.className = "empty";
+      div.innerHTML = "<strong>No matches</strong>Try a different name or roll number.";
+      tableBody.appendChild(div);
+    }
+
+    visible.forEach(s => {
+      const status = getStatus(s.id);
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <span class="roll">#${escapeHtml(s.roll)}</span>
+        <span class="name">${escapeHtml(s.name)}</span>
+        <span class="stamp-group" role="group" aria-label="Attendance status for ${escapeHtml(s.name)}">
+          <button class="stamp p" data-id="${s.id}" data-status="present" aria-pressed="${status==='present'}">P</button>
+          <button class="stamp a" data-id="${s.id}" data-status="absent" aria-pressed="${status==='absent'}">A</button>
+          <button class="stamp l" data-id="${s.id}" data-status="late" aria-pressed="${status==='late'}">L</button>
+        </span>
+        <button class="remove-btn" data-id="${s.id}" title="Remove student" aria-label="Remove ${escapeHtml(s.name)}">×</button>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // wire up stamp buttons
+    tableBody.querySelectorAll(".stamp").forEach(btn=>{
+      btn.addEventListener("click", () => setStatus(btn.dataset.id, btn.dataset.status));
+    });
+    tableBody.querySelectorAll(".remove-btn").forEach(btn=>{
+      btn.addEventListener("click", () => removeStudent(btn.dataset.id));
+    });
+
+    renderStats(date);
+    classTitle.textContent = `Attendance — ${classNameInput.value || "Untitled class"}`;
+  }
+
+  function renderStats(date){
+    const day = attendance[date] || {};
+    const total = students.length;
+    let present = 0, absent = 0, late = 0;
+    students.forEach(s=>{
+      const st = day[s.id];
+      if(st === "present") present++;
+      else if(st === "absent") absent++;
+      else if(st === "late") late++;
+    });
+    el("statTotal").textContent = total;
+    el("statPresent").textContent = present;
+    el("statAbsent").textContent = absent;
+    el("statLate").textContent = late;
+
+    const marked = present + absent + late;
+    const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+    el("pctNote").textContent = total > 0
+      ? `${marked}/${total} marked · ${pct}% present`
+      : "";
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---------- Actions ----------
+  function addStudent(name, roll){
+    name = name.trim();
+    roll = roll.trim() || nextRoll();
+
+    if(!name){
+      showToast("Enter a student name first");
+      return false;
+    }
+    if(students.some(s => s.roll.toLowerCase() === roll.toLowerCase())){
+      showToast(`Roll ${roll} is already in use`);
+      return false;
+    }
+    students.push({ id: "s" + Date.now() + Math.random().toString(16).slice(2,6), roll, name });
+    showToast(`Added ${name}`);
+    return true;
+  }
+
+  function removeStudent(id){
+    const s = students.find(s=>s.id===id);
+    students = students.filter(s => s.id !== id);
+    Object.values(attendance).forEach(day => delete day[id]);
+    render();
+    if(s) showToast(`Removed ${s.name}`);
+  }
+
+  function markAllPresent(){
+    const date = currentDate();
+    if(!attendance[date]) attendance[date] = {};
+    students.forEach(s => attendance[date][s.id] = "present");
+    render();
+    showToast("Marked everyone present");
+  }
+
+  function clearMarks(){
+    attendance[currentDate()] = {};
+    render();
+    showToast("Cleared today's marks");
+  }
+
+  function exportCSV(){
+    const date = currentDate();
+    const day = attendance[date] || {};
+    const rows = [["Roll", "Name", "Status", "Date", "Class"]];
+    students.forEach(s=>{
+      rows.push([s.roll, s.name, day[s.id] || "unmarked", date, classNameInput.value || ""]);
+    });
+    const csv = rows.map(r => r.map(field => `"${String(field).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `attendance_${(classNameInput.value||"class").replace(/\s+/g,"_")}_${date}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("CSV exported");
+  }
+
+  // ---------- Events ----------
+  addForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    if(addStudent(nameInput.value, rollInput.value)){
+      nameInput.value = "";
+      rollInput.value = "";
+      render();
+      nameInput.focus();
+    }
+  });
+
+  searchInput.addEventListener("input", (e)=>{
+    searchTerm = e.target.value;
+    render();
+  });
+
+  dateInput.addEventListener("change", render);
+  classNameInput.addEventListener("input", render);
+  el("markAllPresent").addEventListener("click", markAllPresent);
+  el("clearAll").addEventListener("click", clearMarks);
+  el("exportBtn").addEventListener("click", exportCSV);
+
+  // ---------- Init ----------
+  render();
+})();
+</script>
+</body>
+</html>
