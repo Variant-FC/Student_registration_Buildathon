@@ -1,0 +1,74 @@
+:root{
+  --ink: #13322D;      /* the "green" itself */
+  --paper: #EEF1EC;
+  --amber: #C68A2E;
+}
+
+header{
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 10px;
+  padding: 22px 26px;
+  box-shadow: 0 1px 2px rgba(19,50,45,0.06), 0 4px 14px rgba(19,50,45,0.05);
+  margin-bottom: 18px;
+}
+
+.title-row{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+h1{
+  font-family: 'Roboto Slab', serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
+
+.eyebrow{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9CC2B4;      /* lighter tint of the green for muted labels */
+  display: block;
+  margin-bottom: 4px;
+}
+
+.header-controls{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.field{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label{
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #9CC2B4;
+}
+
+.field input{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #2A4B44;   /* slightly lighter than --ink, for edge definition */
+  background: #16443B;          /* input fields sit one shade lighter than the header bg */
+  color: #F2F6F1;
+  outline-offset: 2px;
+}
+
+.field input:focus{ outline: 2px solid var(--amber); }
+.field input::placeholder{ color: #7FA79B; }
