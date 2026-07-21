@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Register</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar card">
+      <div class="brand-block">
+        <img class="brand-logo" src="EduvosIconPNGsmall.png" alt="Institution logo">
+        <div class="brand-copy">
+          <p class="eyebrow">attendance capturer for lectures</p>
+          <h1>Attendance register</h1>
+          <p class="subtitle">Create classes, open sessions, add students, mark attendance, and export CSV.</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar card">
+      <div class="control-tile">
+        <h2>Select Class</h2>
+        <label>
+          <select id="classSelect"></select>
+        </label>
+      </div>
+      <label class="control-tile">
+        Session
+        <select id="sessionSelect"></select>
+      </label>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="grid">
+      <section class="card panel">
+        <div class="card-head">
+          <div>
+            <h2>Create class</h2>
+            <p class="muted">Name the course you want to manage.</p>
+          </div>
+        </div>
+        <form id="classForm" class="stack-form">
+          <label>
+            Class name
+            <input id="classNameInput" type="text" placeholder="e.g. Biology 201" required>
+          </label>
+          <button type="submit">Add class</button>
+        </form>
+      </section>
+
+      <section class="card panel">
+        <div class="card-head">
+          <div>
+            <h2>Session and students</h2>
+            <p class="muted">Open a session, then register students for the selected class.</p>
+          </div>
+        </div>
+        <form id="sessionForm" class="stack-form compact">
+          <label>
+            Session name
+            <input id="sessionNameInput" type="text" placeholder="e.g. Week 1 lecture" required>
+          </label>
+          <label>
+            Date
+            <input id="sessionDateInput" type="date" required>
+          </label>
+          <button type="submit">Add session</button>
+        </form>
+
+        <form id="studentForm" class="stack-form compact">
+          <label>
+            Student name
+            <input id="studentNameInput" type="text" placeholder="e.g. Amina Khan" required>
+          </label>
+          <label>
+            Student number
+            <input id="studentRollInput" type="text" placeholder="e.g. 001" required>
+          </label>
+          <button type="submit">Add student</button>
+        </form>
+      </section>
+
+      <section class="card panel wide">
+        <div class="card-head">
+          <div>
+            <h2>Attendance capture</h2>
+            <p class="muted" id="activeSummary">Create a class and session to begin.</p>
+          </div>
+        </div>
+        <div id="attendanceTable" class="attendance-table"></div>
+      </section>
+
+      <section class="card panel wide">
+        <div class="card-head">
+          <div>
+            <h2>Students</h2>
+            <p class="muted">Remove students from the selected class if needed.</p>
+          </div>
+        </div>
+        <div id="studentList" class="student-list"></div>
+      </section>
+
+      <section class="footer-actions">
+        <button id="exportBtn" class="secondary-btn" type="button">Export CSV</button>
+      </section>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
