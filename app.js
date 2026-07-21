@@ -41,7 +41,7 @@ const elements = {
   studentList: document.getElementById("studentList")
 };
 
-// ---------- storage ----------
+//storage 
 
 function loadState() {
   try {
@@ -78,14 +78,10 @@ function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (err) {
-    // Storage can fail (private browsing, quota exceeded, disabled). Don't let
-    // that take the whole UI down — the app still works for this session.
     console.error("Could not save attendance data:", err);
   }
 }
-
-// ---------- helpers ----------
-
+ 
 function makeId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -133,10 +129,7 @@ function attendanceLabel(value) {
   return value === "P" ? "Present" : value === "A" ? "Absent" : "Not marked";
 }
 
-// Every "add X" form (class / session / student) follows the same shape:
-// prevent default, read + validate fields, build a record, reset the form,
-// re-render. This collapses the three near-identical submit handlers into
-// one reusable binder instead of repeating the pattern per form.
+
 function bindAddForm(form, { fields, validate, build, after }) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -154,8 +147,7 @@ function bindAddForm(form, { fields, validate, build, after }) {
   });
 }
 
-// ---------- rendering ----------
-
+// rendering 
 function render() {
   ensureSelection();
 
@@ -231,7 +223,7 @@ function exportCsv() {
   link.remove();
 }
 
-// ---------- events ----------
+//events 
 
 elements.exportBtn.addEventListener("click", exportCsv);
 
