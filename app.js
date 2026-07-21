@@ -1,5 +1,5 @@
 const STORAGE_KEY = "attendance-register-state";
-const today = new Date().toISOString().slice(0, 10);
+const getToday = () => new Date().toISOString().slice(0, 10);
 
 const defaultState = {
   selectedClassId: "class-1",
@@ -13,7 +13,7 @@ const defaultState = {
         { id: "student-2", number: "002", name: "Noah Patel" }
       ],
       sessions: [
-        { id: "session-1", name: "Week 1 lecture", date: today, attendance: { "student-1": "P", "student-2": "A" } }
+        { id: "session-1", name: "Week 1 lecture", date: getToday(), attendance: { "student-1": "P", "student-2": "A" } }
       ]
     }
   ]
@@ -33,11 +33,15 @@ const elements = {
   studentNumberInput: document.getElementById("studentRollInput"),
   classSelect: document.getElementById("classSelect"),
   sessionSelect: document.getElementById("sessionSelect"),
+  deleteClassBtn: document.getElementById("deleteClassBtn"),
+  deleteSessionBtn: document.getElementById("deleteSessionBtn"),
   stats: document.getElementById("stats"),
   summary: document.getElementById("activeSummary"),
   attendanceTable: document.getElementById("attendanceTable"),
   studentList: document.getElementById("studentList")
 };
+
+// ---------- storage ----------
 
 function loadState() {
   try {
@@ -71,11 +75,29 @@ function normalizeState(input) {
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    // Storage can fail (private browsing, quota exceeded, disabled). Don't let
+    // that take the whole UI down — the app still works for this session.
+    console.error("Could not save attendance data:", err);
+  }
 }
+
+// ---------- helpers ----------
 
 function makeId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
 }
 
 function activeClass() {
@@ -103,13 +125,36 @@ function ensureSelection() {
 }
 
 function optionsFrom(items, selectedId, emptyLabel) {
-  if (!items.length) return `<option value="">${emptyLabel}</option>`;
-  return items.map((item) => `<option value="${item.id}" ${item.id === selectedId ? "selected" : ""}>${item.name}</option>`).join("");
+  if (!items.length) return `<option value="">${escapeHtml(emptyLabel)}</option>`;
+  return items.map((item) => `<option value="${item.id}" ${item.id === selectedId ? "selected" : ""}>${escapeHtml(item.name)}</option>`).join("");
 }
 
 function attendanceLabel(value) {
   return value === "P" ? "Present" : value === "A" ? "Absent" : "Not marked";
 }
+
+// Every "add X" form (class / session / student) follows the same shape:
+// prevent default, read + validate fields, build a record, reset the form,
+// re-render. This collapses the three near-identical submit handlers into
+// one reusable binder instead of repeating the pattern per form.
+function bindAddForm(form, { fields, validate, build, after }) {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const values = Object.fromEntries(Object.entries(fields).map(([key, input]) => [key, input.value.trim()]));
+
+    if (validate && !validate(values)) return;
+
+    build(values);
+
+    Object.values(fields).forEach((input) => {
+      if (input.type !== "date") input.value = "";
+    });
+    after?.();
+    render();
+  });
+}
+
+// ---------- rendering ----------
 
 function render() {
   ensureSelection();
@@ -122,26 +167,35 @@ function render() {
 
   elements.classSelect.innerHTML = optionsFrom(state.classes, state.selectedClassId, "No classes yet");
   elements.sessionSelect.innerHTML = optionsFrom(currentClass?.sessions || [], state.selectedSessionId, "No sessions yet");
+  elements.deleteClassBtn.disabled = !currentClass;
+  elements.deleteSessionBtn.disabled = !currentSession;
   elements.stats.innerHTML = `<span>${studentCount} students</span><span>${sessionCount} sessions</span><span>${markedCount} marked</span>`;
   elements.summary.textContent = currentClass ? `${currentClass.name}${currentSession ? ` · ${currentSession.name} · ${currentSession.date}` : ""}` : "Create a class to begin.";
 
   elements.attendanceTable.innerHTML = currentClass && currentSession && currentClass.students.length ? `
     <div class="table-head"><span>Student number</span><span>Name</span><span>Attendance</span></div>
-    ${currentClass.students.map((student) => `
+    ${currentClass.students.map((student) => {
+      const current = currentSession.attendance[student.id] || "";
+      const chip = (value, label) => `
+        <label class="chip ${current === value ? "active" : ""}">
+          <input type="radio" name="attendance-${student.id}" value="${value}" data-student="${student.id}" ${current === value ? "checked" : ""}>${label}
+        </label>`;
+      return `
       <div class="table-row">
-        <span>${student.number}</span>
-        <span>${student.name}</span>
+        <span>${escapeHtml(student.number)}</span>
+        <span>${escapeHtml(student.name)}</span>
         <div class="attendance-choice">
-          <label class="chip ${currentSession.attendance[student.id] === "P" ? "active" : ""}"><input type="radio" name="attendance-${student.id}" value="P" data-student="${student.id}" ${currentSession.attendance[student.id] === "P" ? "checked" : ""}>Present</label>
-          <label class="chip ${currentSession.attendance[student.id] === "A" ? "active" : ""}"><input type="radio" name="attendance-${student.id}" value="A" data-student="${student.id}" ${currentSession.attendance[student.id] === "A" ? "checked" : ""}>Absent</label>
+          ${chip("P", "Present")}
+          ${chip("A", "Absent")}
+          ${chip("", "Not marked")}
         </div>
-      </div>
-    `).join("")}
+      </div>`;
+    }).join("")}
   ` : '<p class="empty">Create a class and session, then add students to mark attendance.</p>';
 
   elements.studentList.innerHTML = currentClass?.students.length ? currentClass.students.map((student) => `
     <article class="student-row">
-      <div><strong>${student.number}</strong><span>${student.name}</span></div>
+      <div><strong>${escapeHtml(student.number)}</strong><span>${escapeHtml(student.name)}</span></div>
       <button type="button" class="ghost-btn" data-remove="${student.id}">Remove</button>
     </article>
   `).join("") : '<p class="empty">No students added yet.</p>';
@@ -177,47 +231,80 @@ function exportCsv() {
   link.remove();
 }
 
+// ---------- events ----------
 
 elements.exportBtn.addEventListener("click", exportCsv);
 
-elements.classForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const name = elements.classNameInput.value.trim();
-  if (!name) return;
-  const newClass = { id: makeId("class"), name, students: [], sessions: [] };
-  state.classes.push(newClass);
-  state.selectedClassId = newClass.id;
+bindAddForm(elements.classForm, {
+  fields: { name: elements.classNameInput },
+  validate: ({ name }) => {
+    if (!name) return false;
+    if (state.classes.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
+      alert(`A class named "${name}" already exists.`);
+      return false;
+    }
+    return true;
+  },
+  build: ({ name }) => {
+    const newClass = { id: makeId("class"), name, students: [], sessions: [] };
+    state.classes.push(newClass);
+    state.selectedClassId = newClass.id;
+    state.selectedSessionId = null;
+  }
+});
+
+bindAddForm(elements.sessionForm, {
+  fields: { name: elements.sessionNameInput, date: elements.sessionDateInput },
+  validate: ({ name, date }) => Boolean(activeClass() && name && date),
+  build: ({ name, date }) => {
+    const currentClass = activeClass();
+    const session = { id: makeId("session"), name, date, attendance: Object.fromEntries(currentClass.students.map((student) => [student.id, ""])) };
+    currentClass.sessions.push(session);
+    state.selectedSessionId = session.id;
+  },
+  after: () => {
+    elements.sessionDateInput.value = getToday();
+  }
+});
+
+bindAddForm(elements.studentForm, {
+  fields: { name: elements.studentNameInput, number: elements.studentNumberInput },
+  validate: ({ name, number }) => {
+    const currentClass = activeClass();
+    if (!currentClass || !name || !number) return false;
+    if (currentClass.students.some((s) => s.number === number)) {
+      alert(`Student number "${number}" is already in use for this class.`);
+      return false;
+    }
+    return true;
+  },
+  build: ({ name, number }) => {
+    const currentClass = activeClass();
+    const student = { id: makeId("student"), name, number };
+    currentClass.students.push(student);
+    currentClass.sessions.forEach((session) => {
+      session.attendance[student.id] = "";
+    });
+  }
+});
+
+elements.deleteClassBtn.addEventListener("click", () => {
+  const currentClass = activeClass();
+  if (!currentClass) return;
+  if (!confirm(`Delete "${currentClass.name}"? This removes all its sessions, students, and attendance records.`)) return;
+  state.classes = state.classes.filter((c) => c.id !== currentClass.id);
+  state.selectedClassId = state.classes[0]?.id || null;
   state.selectedSessionId = null;
-  elements.classNameInput.value = "";
   render();
 });
 
-elements.sessionForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+elements.deleteSessionBtn.addEventListener("click", () => {
   const currentClass = activeClass();
-  const name = elements.sessionNameInput.value.trim();
-  const date = elements.sessionDateInput.value;
-  if (!currentClass || !name || !date) return;
-  const session = { id: makeId("session"), name, date, attendance: Object.fromEntries(currentClass.students.map((student) => [student.id, ""])) };
-  currentClass.sessions.push(session);
-  state.selectedSessionId = session.id;
-  elements.sessionNameInput.value = "";
-  render();
-});
-
-elements.studentForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const currentClass = activeClass();
-  const name = elements.studentNameInput.value.trim();
-  const number = elements.studentNumberInput.value.trim();
-  if (!currentClass || !name || !number) return;
-  const student = { id: makeId("student"), name, number };
-  currentClass.students.push(student);
-  currentClass.sessions.forEach((session) => {
-    session.attendance[student.id] = "";
-  });
-  elements.studentNameInput.value = "";
-  elements.studentNumberInput.value = "";
+  const currentSession = activeSession();
+  if (!currentClass || !currentSession) return;
+  if (!confirm(`Delete session "${currentSession.name}" (${currentSession.date})? Its attendance records will be lost.`)) return;
+  currentClass.sessions = currentClass.sessions.filter((s) => s.id !== currentSession.id);
+  state.selectedSessionId = null;
   render();
 });
 
@@ -234,7 +321,7 @@ elements.sessionSelect.addEventListener("change", (event) => {
 
 elements.attendanceTable.addEventListener("change", (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLInputElement) || !target.dataset.student || !target.value) return;
+  if (!(target instanceof HTMLInputElement) || !target.dataset.student) return;
   const session = activeSession();
   if (!session) return;
   session.attendance[target.dataset.student] = target.value;
@@ -246,10 +333,12 @@ elements.studentList.addEventListener("click", (event) => {
   if (!(target instanceof HTMLElement) || !target.dataset.remove) return;
   const currentClass = activeClass();
   if (!currentClass) return;
-  currentClass.students = currentClass.students.filter((student) => student.id !== target.dataset.remove);
+  const student = currentClass.students.find((s) => s.id === target.dataset.remove);
+  if (student && !confirm(`Remove ${student.name} (${student.number}) from this class?`)) return;
+  currentClass.students = currentClass.students.filter((s) => s.id !== target.dataset.remove);
   currentClass.sessions.forEach((session) => delete session.attendance[target.dataset.remove]);
   render();
 });
 
-elements.sessionDateInput.value = today;
+elements.sessionDateInput.value = getToday();
 render();

@@ -11,6 +11,8 @@
   --present-soft: #e4e9f7;
   --absent: #6d7480;
   --absent-soft: #eef1f5;
+  --danger: #b3261e;
+  --danger-soft: #fbeceb;
 }
 
 * { box-sizing: border-box; }
@@ -101,6 +103,11 @@ button {
 
 button:hover { opacity: 0.95; }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .secondary-btn {
   align-self: flex-start;
 }
@@ -109,6 +116,15 @@ button:hover { opacity: 0.95; }
   background: var(--surface-soft);
   color: var(--ink);
   border: 1px solid var(--line);
+}
+
+.danger-btn {
+  color: var(--danger);
+  border-color: #e9c9c7;
+}
+
+.danger-btn:hover {
+  background: var(--danger-soft);
 }
 
 label {

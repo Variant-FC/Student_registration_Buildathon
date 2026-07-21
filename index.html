@@ -18,21 +18,23 @@
         </div>
       </div>
     </header>
-
     <section class="toolbar card">
       <div class="control-tile">
         <h2>Select Class</h2>
         <label>
           <select id="classSelect"></select>
         </label>
+        <button type="button" class="ghost-btn danger-btn" id="deleteClassBtn">Delete class</button>
       </div>
-      <label class="control-tile">
-        Session
-        <select id="sessionSelect"></select>
-      </label>
+      <div class="control-tile">
+        <h2>Session</h2>
+        <label>
+          <select id="sessionSelect"></select>
+        </label>
+        <button type="button" class="ghost-btn danger-btn" id="deleteSessionBtn">Delete session</button>
+      </div>
       <div class="stats" id="stats"></div>
     </section>
-
     <section class="grid">
       <section class="card panel">
         <div class="card-head">
@@ -49,7 +51,6 @@
           <button type="submit">Add class</button>
         </form>
       </section>
-
       <section class="card panel">
         <div class="card-head">
           <div>
@@ -68,7 +69,6 @@
           </label>
           <button type="submit">Add session</button>
         </form>
-
         <form id="studentForm" class="stack-form compact">
           <label>
             Student name
@@ -81,7 +81,6 @@
           <button type="submit">Add student</button>
         </form>
       </section>
-
       <section class="card panel wide">
         <div class="card-head">
           <div>
@@ -91,7 +90,6 @@
         </div>
         <div id="attendanceTable" class="attendance-table"></div>
       </section>
-
       <section class="card panel wide">
         <div class="card-head">
           <div>
@@ -101,13 +99,11 @@
         </div>
         <div id="studentList" class="student-list"></div>
       </section>
-
       <section class="footer-actions">
         <button id="exportBtn" class="secondary-btn" type="button">Export CSV</button>
       </section>
     </section>
   </main>
-
   <script src="app.js"></script>
 </body>
 </html>
