@@ -1,5 +1,5 @@
 :root{
-  --ink: #13322D;      /* the "green" itself */
+  --ink: rgb(9, 9, 113);      
   --paper: #EEF1EC;
   --amber: #C68A2E;
 }
@@ -35,8 +35,7 @@ h1{
   font-size: 0.7rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #9CC2B4;      /* lighter tint of the green for muted labels */
-  display: block;
+  color: #9CC2B4;      
   margin-bottom: 4px;
 }
 
@@ -64,9 +63,7 @@ h1{
   font-size: 0.9rem;
   padding: 7px 10px;
   border-radius: 6px;
-  border: 1px solid #2A4B44;   /* slightly lighter than --ink, for edge definition */
-  background: #16443B;          /* input fields sit one shade lighter than the header bg */
-  color: #F2F6F1;
+  border: 1px solid #2A4B44;  
   outline-offset: 2px;
 }
 
