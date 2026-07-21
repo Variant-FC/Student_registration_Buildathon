@@ -1,50 +1,109 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Attendance Register</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Register</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <div class="title-row">
-    <div>
-      <span class="eyebrow">Daily student register</span>
-      <h1 id="classTitle">Student Attendance App</h1>
-    </div>
-  </div>
-  <div class="header-controls">
-    <div class="field">
-      <label for="className">Class</label>
-      <input id="className" type="text" placeholder="Enter class name">
-    </div>
-    <div class="field">
-      <label for="dateInput">Date</label>
-      <input id="dateInput" type="date">
-    </div>
-  </div>  
-</header>
-<!--Add student table*/ 
-<div class="student_table">
-    <div class = "student_table_head">
-        <span>Roll</span>
-        <span>Name</span>
-        <span>Status</span>
-        <span></span>
-    </div>
-
-    <div class="student_table_row">
-        <span class="roll">#001</span>
-        <span class="name">Amara Chen</span>
-        <span class="stamp-group" role="group" aria-label="Attendance status for Amara Chen">
-        <button class="stamp p" aria-pressed="true">P</button>
-        <button class="stamp a" aria-pressed="false">A</button>
-        <button class="stamp l" aria-pressed="false">L</button>
-        </span>
-        <button class="remove-btn" aria-label="Remove Amara Chen">×</button>
-    </div>
-
-</div>
--->
-<script src="app.js"></script>
+  <main class="app">
+    <header class="topbar card">
+      <div class="brand-block">
+        <img class="brand-logo" src="EduvosIconPNGsmall.png" alt="Institution logo">
+        <div class="brand-copy">
+          <p class="eyebrow">attendance capturer for lectures</p>
+          <h1>Attendance register</h1>
+          <p class="subtitle">Create classes, open sessions, add students, mark attendance, and export CSV.</p>
+        </div>
+      </div>
+    </header>
+    <section class="toolbar card">
+      <div class="control-tile">
+        <h2>Select Class</h2>
+        <label>
+          <select id="classSelect"></select>
+        </label>
+        <button type="button" class="ghost-btn danger-btn" id="deleteClassBtn">Delete class</button>
+      </div>
+      <div class="control-tile">
+        <h2>Session</h2>
+        <label>
+          <select id="sessionSelect"></select>
+        </label>
+        <button type="button" class="ghost-btn danger-btn" id="deleteSessionBtn">Delete session</button>
+      </div>
+      <div class="stats" id="stats"></div>
+    </section>
+    <section class="grid">
+      <section class="card panel">
+        <div class="card-head">
+          <div>
+            <h2>Create class</h2>
+            <p class="muted">Name the course you want to manage.</p>
+          </div>
+        </div>
+        <form id="classForm" class="stack-form">
+          <label>
+            Class name
+            <input id="classNameInput" type="text" placeholder="e.g. Biology 201" required>
+          </label>
+          <button type="submit">Add class</button>
+        </form>
+      </section>
+      <section class="card panel">
+        <div class="card-head">
+          <div>
+            <h2>Session and students</h2>
+            <p class="muted">Open a session, then register students for the selected class.</p>
+          </div>
+        </div>
+        <form id="sessionForm" class="stack-form compact">
+          <label>
+            Session name
+            <input id="sessionNameInput" type="text" placeholder="e.g. Week 1 lecture" required>
+          </label>
+          <label>
+            Date
+            <input id="sessionDateInput" type="date" required>
+          </label>
+          <button type="submit">Add session</button>
+        </form>
+        <form id="studentForm" class="stack-form compact">
+          <label>
+            Student name
+            <input id="studentNameInput" type="text" placeholder="e.g. Amina Khan" required>
+          </label>
+          <label>
+            Student number
+            <input id="studentRollInput" type="text" placeholder="e.g. 001" required>
+          </label>
+          <button type="submit">Add student</button>
+        </form>
+      </section>
+      <section class="card panel wide">
+        <div class="card-head">
+          <div>
+            <h2>Attendance capture</h2>
+            <p class="muted" id="activeSummary">Create a class and session to begin.</p>
+          </div>
+        </div>
+        <div id="attendanceTable" class="attendance-table"></div>
+      </section>
+      <section class="card panel wide">
+        <div class="card-head">
+          <div>
+            <h2>Students</h2>
+            <p class="muted">Remove students from the selected class if needed.</p>
+          </div>
+        </div>
+        <div id="studentList" class="student-list"></div>
+      </section>
+      <section class="footer-actions">
+        <button id="exportBtn" class="secondary-btn" type="button">Export CSV</button>
+      </section>
+    </section>
+  </main>
+  <script src="app.js"></script>
 </body>
-
 </html>
