@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title>Attendance Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <div>
+      <span class="eyebrow">Daily student register</span>
+      <h1 id="classTitle">Student Attendance App</h1>
+    </div>
+  </div>
+  <div class="header-controls">
+    <div class="field">
+      <label for="className">Class</label>
+      <input id="className" type="text" placeholder="Enter class name">
+    </div>
+    <div class="field">
+      <label for="dateInput">Date</label>
+      <input id="dateInput" type="date">
+    </div>
+  </div>  
+</header>
+<!--Add student table*/ 
+<div class="student_table">
+    <div class = "student_table_head">
+        <span>Roll</span>
+        <span>Name</span>
+        <span>Status</span>
+        <span></span>
+    </div>
+
+    <div class="student_table_row">
+        <span class="roll">#001</span>
+        <span class="name">Amara Chen</span>
+        <span class="stamp-group" role="group" aria-label="Attendance status for Amara Chen">
+        <button class="stamp p" aria-pressed="true">P</button>
+        <button class="stamp a" aria-pressed="false">A</button>
+        <button class="stamp l" aria-pressed="false">L</button>
+        </span>
+        <button class="remove-btn" aria-label="Remove Amara Chen">×</button>
+    </div>
+
+</div>
+-->
+<script src="app.js"></script>
+</body>
+
+</html>
