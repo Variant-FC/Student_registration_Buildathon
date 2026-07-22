@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const STORAGE_KEY = "attendance-register-state";
 const getToday = () => new Date().toISOString().slice(0, 10);
 
@@ -335,4 +334,4 @@ elements.studentList.addEventListener("click", (event) => {
 
 elements.sessionDateInput.value = getToday();
 render();
->>>>>>> origin/main
+
