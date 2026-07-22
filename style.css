@@ -8,11 +8,11 @@
   --accent: #1f3c88;
   --accent-soft: #e4e9f7;
   --present: #1f3c88;
-  --danger: #b3261e;
-  --danger-soft: #fbeceb;
   --present-soft: #e4e9f7;
   --absent: #6d7480;
   --absent-soft: #eef1f5;
+  --danger: #b3261e;
+  --danger-soft: #fbeceb;
 }
 
 * { box-sizing: border-box; }
@@ -388,6 +388,8 @@ select:focus {
   color: var(--muted);
 }
 
+.hidden { display: none; }
+
 @media (max-width: 900px) {
   .toolbar,
   .grid {
@@ -436,8 +438,4 @@ select:focus {
   .bar-row {
     grid-template-columns: 70px minmax(0, 1fr) auto;
   }
-}
-
-.hidden {
-  display: none;
 }
