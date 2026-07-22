@@ -7,10 +7,10 @@ const defaultState = {
   classes: [
     {
       id: "class-1",
-      name: "Computer Science 101",
+      name: "Computer Network Security",
       students: [
-        { id: "student-1", number: "001", name: "Amara Chen" },
-        { id: "student-2", number: "002", name: "Noah Patel" }
+        { id: "student-1", number: "EDU01", name: "Mohammed Salah" },
+        { id: "student-2", number: "EDU02", name: "Mbekezeli Mbokazi" }
       ],
       sessions: [
         { id: "session-1", name: "Week 1 lecture", date: getToday(), attendance: { "student-1": "P", "student-2": "A" } }
@@ -30,7 +30,7 @@ const elements = {
   sessionNameInput: document.getElementById("sessionNameInput"),
   sessionDateInput: document.getElementById("sessionDateInput"),
   studentNameInput: document.getElementById("studentNameInput"),
-  studentNumberInput: document.getElementById("studentRollInput"),
+  studentNumberInput: document.getElementById("studentIDInput"),
   classSelect: document.getElementById("classSelect"),
   sessionSelect: document.getElementById("sessionSelect"),
   deleteClassBtn: document.getElementById("deleteClassBtn"),
