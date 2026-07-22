@@ -38,7 +38,8 @@ const elements = {
   stats: document.getElementById("stats"),
   summary: document.getElementById("activeSummary"),
   attendanceTable: document.getElementById("attendanceTable"),
-  studentList: document.getElementById("studentList")
+  studentList: document.getElementById("studentList"),
+  attendanceOverview: document.getElementById("attendanceOverview")
 };
 
 //storage 
@@ -129,6 +130,95 @@ function attendanceLabel(value) {
   return value === "P" ? "Present" : value === "A" ? "Absent" : "Not marked";
 }
 
+function getAttendanceMetrics(currentClass, currentSession) {
+  if (!currentClass || !currentSession) {
+    return {
+      total: 0,
+      present: 0,
+      absent: 0,
+      notMarked: 0
+    };
+  }
+
+  const total = currentClass.students.length;
+  let present = 0;
+  let absent = 0;
+
+  currentClass.students.forEach((student) => {
+    const value = currentSession.attendance[student.id];
+
+    if (value === "P") {
+      present++;
+    } else if (value === "A") {
+      absent++;
+    }
+  });
+
+  return {
+    total,
+    present,
+    absent,
+    notMarked: total - present - absent
+  };
+}
+
+function renderAttendanceOverview(metrics) {
+  if (!metrics.total) {
+    return `
+      <p class="empty">
+        Add students and create a session to see attendance statistics.
+      </p>
+    `;
+  }
+
+  const percent = (value) =>
+    metrics.total ? ((value / metrics.total) * 100).toFixed(0) : 0;
+
+  return `
+    <div class="overview-grid">
+      <div class="overview-tile present">
+        <span class="overview-label">Present</span>
+        <span class="overview-value">${metrics.present}</span>
+      </div>
+
+      <div class="overview-tile absent">
+        <span class="overview-label">Absent</span>
+        <span class="overview-value">${metrics.absent}</span>
+      </div>
+
+      <div class="overview-tile not-marked">
+        <span class="overview-label">Not marked</span>
+        <span class="overview-value">${metrics.notMarked}</span>
+      </div>
+    </div>
+
+    <div class="bars">
+      <div class="bar-row">
+        <span class="bar-label">Present</span>
+        <div class="bar-track">
+          <span class="bar-fill present" style="width:${percent(metrics.present)}%"></span>
+        </div>
+        <span class="bar-value">${percent(metrics.present)}%</span>
+      </div>
+
+      <div class="bar-row">
+        <span class="bar-label">Absent</span>
+        <div class="bar-track">
+          <span class="bar-fill absent" style="width:${percent(metrics.absent)}%"></span>
+        </div>
+        <span class="bar-value">${percent(metrics.absent)}%</span>
+      </div>
+
+      <div class="bar-row">
+        <span class="bar-label">Not marked</span>
+        <div class="bar-track">
+          <span class="bar-fill not-marked" style="width:${percent(metrics.notMarked)}%"></span>
+        </div>
+        <span class="bar-value">${percent(metrics.notMarked)}%</span>
+      </div>
+    </div>
+  `;
+}
 
 function bindAddForm(form, { fields, validate, build, after }) {
   form.addEventListener("submit", (event) => {
@@ -156,6 +246,7 @@ function render() {
   const studentCount = currentClass?.students.length || 0;
   const sessionCount = currentClass?.sessions.length || 0;
   const markedCount = currentSession ? Object.values(currentSession.attendance || {}).filter(Boolean).length : 0;
+  const metrics = getAttendanceMetrics(currentClass, currentSession);
 
   elements.classSelect.innerHTML = optionsFrom(state.classes, state.selectedClassId, "No classes yet");
   elements.sessionSelect.innerHTML = optionsFrom(currentClass?.sessions || [], state.selectedSessionId, "No sessions yet");
